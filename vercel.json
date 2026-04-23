@@ -1,4 +1,23 @@
-"rewrites": [
-    { "source": "/api/consulta", "destination": "/api/index.py" },
-    { "source": "/(.*)", "destination": "/index.html" }
-]
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/consulta",
+      "destination": "api/index.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
