@@ -11,7 +11,7 @@ def consulta():
         
         # Caminho do CSV
         api_dir = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(api_dir, '..', 'data', 'SPGlobal_Export_4-14-2026_FinalVersion.xlsx - Sheet1.csv')
+        csv_path = os.path.join(api_dir, '..', 'data', 'SPGlobal_Export_4-14-2026_FinalVersion.csv')
         
         df = pd.read_csv(csv_path, skiprows=4)
         # Busca simples que contém o Ticker (ex: MMM)
