@@ -1,13 +1,6 @@
 {
   "version": 2,
   "rewrites": [
-    {
-      "source": "/api/consulta",
-      "destination": "api/index.py"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/api/consulta", "destination": "api/index.py" }
   ]
 }
