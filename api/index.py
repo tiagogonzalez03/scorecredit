@@ -33,7 +33,7 @@ def carregar_dados():
     df['Rating'] = df.apply(definir_rating, axis=1)
     return df
 
-@app.route('/')
+@app.route('/api/consulta')
 def home():
     empresa_query = request.args.get('empresa', '').lower()
     df = carregar_dados()
