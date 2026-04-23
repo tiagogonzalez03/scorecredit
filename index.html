@@ -33,7 +33,7 @@
 
         try {
             // Corrigido: adicionado o fetch e as crases corretas
-            const response = await fetch(`/api/consulta?empresa=${nome}`);
+           const response = await fetch('/api/consulta?empresa=' + nome);
             const data = await response.json();
 
             if (data.erro) {
