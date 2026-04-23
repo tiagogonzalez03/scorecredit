@@ -2,49 +2,47 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Radar S&P 500</title>
+    <title>S&P Risk Radar</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center justify-center p-6">
-    <div class="max-w-md w-full bg-slate-800 p-8 rounded-xl shadow-2xl">
-        <h1 class="text-2xl font-bold mb-6 text-center">🛡️ Analisador de Risco</h1>
-        
-        <div class="flex gap-2 mb-6">
-            <input type="text" id="empresaInput" placeholder="Ex: MMM, AAPL, META" 
-                class="flex-1 p-3 rounded bg-slate-700 border border-slate-600 focus:outline-none focus:border-blue-500">
-            <button onclick="buscar()" class="bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded font-bold transition">OK</button>
+<body class="bg-slate-900 text-white p-10 font-sans">
+    <div class="max-w-md mx-auto">
+        <h1 class="text-2xl font-bold mb-6 text-center">🛡️ Radar de Solvência</h1>
+        <div class="flex gap-2">
+            <input type="text" id="tickerInput" placeholder="Ex: MMM, AAPL" 
+                   class="flex-1 p-2 rounded bg-slate-800 border border-slate-700 uppercase">
+            <button onclick="analisar()" class="bg-blue-600 px-4 py-2 rounded font-bold">ANALISAR</button>
         </div>
-
-        <div id="resultado" class="hidden space-y-4 animate-fade-in"></div>
+        <div id="resultado" class="mt-8 hidden p-4 bg-slate-800 rounded border-l-4"></div>
     </div>
 
     <script>
-        async function buscar() {
-            const ticker = document.getElementById('empresaInput').value.trim();
+        async function analisar() {
+            const ticker = document.getElementById('tickerInput').value;
             const resDiv = document.getElementById('resultado');
             if (!ticker) return;
 
-            resDiv.innerHTML = "<p class='text-center'>Consultando...</p>";
+            resDiv.innerHTML = "Buscando...";
             resDiv.classList.remove('hidden');
 
             try {
+                // Chamada para a API
                 const response = await fetch(`/api/consulta?empresa=${ticker}`);
                 const data = await response.json();
 
                 if (!response.ok) {
-                    resDiv.innerHTML = `<p class="text-red-400 text-center">${data.erro || 'Erro na busca'}</p>`;
+                    resDiv.style.borderColor = "#ef4444"; // Vermelho
+                    resDiv.innerHTML = `<p class="text-red-400">❌ ${data.erro}</p>`;
                 } else {
+                    resDiv.style.borderColor = data.Rating.includes('BAIXO') ? "#22c55e" : "#eab308"; // Verde ou Amarelo
                     resDiv.innerHTML = `
-                        <div class="border-l-4 border-blue-500 bg-slate-900 p-4 rounded">
-                            <p class="text-xs text-slate-500 uppercase">Empresa</p>
-                            <h2 class="text-lg font-bold">${data.Empresa}</h2>
-                            <p class="mt-4 text-sm font-bold p-2 bg-slate-800 rounded inline-block">${data.Rating}</p>
-                            <p class="mt-4 text-slate-400">Alavancagem: <span class="text-white font-mono">${data.Alavancagem}x</span></p>
-                        </div>
+                        <h2 class="font-bold text-xl">${data.Empresa}</h2>
+                        <p class="text-lg my-2">${data.Rating}</p>
+                        <p class="text-slate-400 font-mono">Alavancagem: ${data.Alavancagem}x</p>
                     `;
                 }
             } catch (e) {
-                resDiv.innerHTML = `<p class="text-red-400">Erro de conexão com o servidor.</p>`;
+                resDiv.innerHTML = "ERRO: O servidor não respondeu.";
             }
         }
     </script>
