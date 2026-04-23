@@ -2,64 +2,48 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S&P 500 Risk Analyzer</title>
+    <title>Análise S&P 500</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center py-12 px-4">
-    <div class="max-w-2xl w-full">
-        <h1 class="text-4xl font-bold text-center mb-2">🛡️ Radar de Solvência</h1>
-        <p class="text-slate-400 text-center mb-8">Análise de Crédito S&P 500</p>
-
+<body class="bg-slate-900 text-white flex flex-col items-center py-12">
+    <div class="max-w-md w-full px-4">
+        <h1 class="text-3xl font-bold mb-6 text-center">Radar de Solvência</h1>
+        
         <div class="flex gap-2 mb-8">
-            <input type="text" id="empresaInput" placeholder="Digite o Ticker (Ex: MMM, AAPL, META)" 
-                class="flex-1 p-3 rounded bg-slate-800 border border-slate-700 focus:outline-none focus:border-blue-500">
-            <button onclick="buscar()" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded font-bold transition">Analisar</button>
+            <input type="text" id="empresaInput" placeholder="Ex: MMM, META, AAPL" 
+                class="flex-1 p-3 rounded bg-slate-800 border border-slate-700">
+            <button onclick="buscar()" class="bg-blue-600 px-6 py-3 rounded font-bold">Analisar</button>
         </div>
 
-        <div id="resultado" class="hidden"></div>
+        <div id="resultado" class="hidden space-y-4"></div>
     </div>
 
     <script>
         async function buscar() {
-            const nome = document.getElementById('empresaInput').value;
+            const nome = document.getElementById('empresaInput').value.trim();
             const resDiv = document.getElementById('resultado');
-            if (!nome) return alert("Digite o nome da empresa!");
+            if (!nome) return alert("Digite um ticker!");
+
+            resDiv.innerHTML = "Carregando...";
+            resDiv.classList.remove('hidden');
 
             try {
-                // Tenta conectar na API
+                // Chamada direta para a rota definida no vercel.json
                 const response = await fetch(`/api/consulta?empresa=${nome}`);
                 
-                if (response.status === 404) {
-                    resDiv.innerHTML = `<p class="text-red-400 text-center">Empresa não encontrada no CSV.</p>`;
-                    resDiv.classList.remove('hidden');
-                    return;
-                }
+                if (!response.ok) throw new Error("Não encontrado");
 
                 const data = await response.json();
                 
-                const cor = data.Rating.includes('BAIXO') ? 'border-green-500' : 
-                            data.Rating.includes('ALTO') ? 'border-red-500' : 'border-yellow-500';
-
                 resDiv.innerHTML = `
-                    <div class="bg-slate-800 border-t-4 ${cor} p-6 rounded-lg shadow-xl">
-                        <h2 class="text-2xl font-bold mb-2">${data.Empresa}</h2>
-                        <p class="text-sm font-bold p-2 bg-slate-900 rounded inline-block mb-4">${data.Rating}</p>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="bg-slate-900 p-4 rounded text-center">
-                                <p class="text-xs text-slate-400 uppercase">Alavancagem</p>
-                                <p class="text-xl font-mono font-bold">${data.Alavancagem}x</p>
-                            </div>
-                            <div class="bg-slate-900 p-4 rounded text-center">
-                                <p class="text-xs text-slate-400 uppercase">Status</p>
-                                <p class="text-xl font-bold">${data.Alavancagem < 2 ? 'Saudável' : 'Alerta'}</p>
-                            </div>
-                        </div>
+                    <div class="bg-slate-800 p-6 rounded-lg border-l-4 ${data.Rating.includes('BAIXO') ? 'border-green-500' : 'border-red-500'}">
+                        <h2 class="text-xl font-bold">${data.Empresa}</h2>
+                        <p class="text-lg my-2">${data.Rating}</p>
+                        <p class="text-slate-400">Alavancagem: ${data.Alavancagem}x</p>
                     </div>
                 `;
-                resDiv.classList.remove('hidden');
             } catch (e) {
-                alert("Erro ao conectar na API. Verifique se o deploy terminou.");
+                resDiv.innerHTML = `<p class="text-red-400">Erro: Ticker não encontrado ou falha na API.</p>`;
             }
         }
     </script>
