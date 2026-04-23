@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S&P 500 Risk Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center py-12 px-4">
+    <div class="max-w-2xl w-full">
+        <h1 class="text-4xl font-bold text-center mb-2">🛡️ Radar de Solvência</h1>
+        <p class="text-slate-400 text-center mb-8">Análise de Crédito em Tempo Real - S&P 500</p>
+
+        <div class="flex gap-2 mb-8">
+            <input type="text" id="empresaInput" placeholder="Ex: Meta, Apple, 3M..." 
+                class="flex-1 p-3 rounded bg-slate-800 border border-slate-700 focus:outline-none focus:border-blue-500">
+            <button onclick="buscar()" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded font-bold transition">Analisar</button>
+        </div>
+
+        <div id="resultado" class="hidden">
+            </div>
+    </div>
+
+    <script>
+        async function buscar() {
+            const nome = document.getElementById('empresaInput').value;
+            const resDiv = document.getElementById('resultado');
+            
+            try {
+                const response = await fetch(`/?empresa=${nome}`);
+                const data = await response.json();
+
+                if (data.erro) {
+                    resDiv.innerHTML = `<p class="text-red-400 text-center">${data.erro}</p>`;
+                } else {
+                    const cor = data.Rating.includes('BAIXO') ? 'border-green-500' : 
+                                data.Rating.includes('ALTO') ? 'border-red-500' : 'border-yellow-500';
+                    
+                    resDiv.innerHTML = `
+                        <div class="bg-slate-800 border-t-4 ${cor} p-6 rounded-lg shadow-xl">
+                            <h2 class="text-2xl font-bold mb-4">${data.Empresa}</h2>
+                            <div class="inline-block px-3 py-1 rounded text-sm font-bold mb-4 bg-opacity-20 ${data.Rating.includes('BAIXO') ? 'bg-green-500 text-green-400' : 'bg-red-500 text-red-400'}">
+                                ${data.Rating}
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <div class="bg-slate-900 p-4 rounded">
+                                    <p class="text-slate-400 text-xs uppercase">Dívida / EBITDA</p>
+                                    <p class="text-xl font-mono">${data.Alavancagem}x</p>
+                                </div>
+                                <div class="bg-slate-900 p-4 rounded">
+                                    <p class="text-slate-400 text-xs uppercase">Status da Dívida</p>
+                                    <p class="text-xl">${data.Alavancagem < 2 ? 'Saudável' : 'Alerta'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                resDiv.classList.remove('hidden');
+            } catch (e) {
+                alert('Erro ao consultar a API');
+            }
+        }
+    </script>
+</body>
+</html>
