@@ -27,7 +27,7 @@
             const resDiv = document.getElementById('resultado');
             
             try {
-                const response = await fetch(`/?empresa=${nome}`);
+                const response = await (\/api/consulta?empresa=${nome}`);`
                 const data = await response.json();
 
                 if (data.erro) {
